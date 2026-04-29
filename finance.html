@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Finance</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="theme.js"></script>
+
+  <!-- ✅ Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="app-shell">
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-logo">SP</div>
+      <div class="brand-text">
+        <h1>StudyPulse</h1>
+        <p>Productivity & Finance</p>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a href="index.html">Dashboard</a>
+      <a href="tasks.html">Tasks</a>
+      <a href="focus.html">Focus</a>
+      <a href="assignments.html">Assignments</a>
+      <a class="active" href="finance.html">Finance</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </header>
+
+  <main class="page">
+
+    <section class="page-header">
+      <h2>💰 Finance Tracker</h2>
+      <p>Track your income and expenses</p>
+    </section>
+
+    <!-- ADD -->
+    <section class="card" style="padding:20px;">
+      <form id="finance-form" style="display:flex;gap:10px;flex-wrap:wrap;">
+        <input id="title" placeholder="Title" required style="padding:10px;border-radius:8px;border:1px solid #ddd;flex:1;">
+        <input id="amount" type="number" placeholder="Amount" required style="padding:10px;border-radius:8px;border:1px solid #ddd;width:120px;">
+        <select id="type" style="padding:10px;border-radius:8px;border:1px solid #ddd;">
+          <option value="income">Income</option>
+          <option value="expense">Expense</option>
+        </select>
+        <button style="background:#4f46e5;color:white;border:none;padding:10px 16px;border-radius:8px;">
+          Add
+        </button>
+      </form>
+    </section>
+
+    <!-- BALANCE -->
+    <section class="card" style="padding:20px;margin-top:15px;">
+      <h3>Total Balance</h3>
+      <h1 id="balance">₹0</h1>
+      <p id="summary"></p>
+    </section>
+
+    <!-- STATS -->
+    <section style="display:flex;gap:15px;margin-top:15px;">
+      <div class="card" style="flex:1;padding:15px;">
+        <p>Income</p>
+        <h3 id="income" style="color:#16a34a;">₹0</h3>
+      </div>
+
+      <div class="card" style="flex:1;padding:15px;">
+        <p>Expenses</p>
+        <h3 id="expense" style="color:#dc2626;">₹0</h3>
+      </div>
+
+      <div class="card" style="flex:1;padding:15px;">
+        <p>Savings</p>
+        <h3 id="saving" style="color:#2563eb;">₹0</h3>
+      </div>
+    </section>
+
+    <!-- CHART -->
+    <section class="card" style="margin-top:15px;padding:20px;">
+      <h3>Income vs Expense</h3>
+      <canvas id="financeChart" style="max-height:250px;"></canvas>
+    </section>
+
+    <!-- LIST -->
+    <section class="card" style="margin-top:15px;padding:20px;">
+      <h3>Recent Transactions</h3>
+      <div id="list"></div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+const list = document.getElementById("list");
+const form = document.getElementById("finance-form");
+
+let chart;
+
+// SEED DATA
+async function seedData() {
+  const res = await fetch(`http://localhost:5000/api/finance/${user.id}`);
+  const data = await res.json();
+
+  if (data.length === 0) {
+    const sample = [
+      { title: "Freelance", amount: 10000, type: "income" },
+      { title: "Groceries", amount: 1500, type: "expense" },
+      { title: "Travel", amount: 2000, type: "expense" }
+    ];
+
+    for (let t of sample) {
+      await fetch("http://localhost:5000/api/finance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...t, userId: user.id })
+      });
+    }
+  }
+}
+
+// LOAD
+async function loadFinance() {
+  const res = await fetch(`http://localhost:5000/api/finance/${user.id}`);
+const data = await res.json();
+
+if (!Array.isArray(data)) {
+  console.error("Invalid data:", data);
+  return;
+}
+
+  list.innerHTML = "";
+
+  let income = 0;
+  let expense = 0;
+
+  data.forEach(t => {
+    if (t.type === "income") income += t.amount;
+    else expense += t.amount;
+
+    const div = document.createElement("div");
+
+    div.style.display = "flex";
+    div.style.justifyContent = "space-between";
+    div.style.padding = "10px";
+    div.style.margin = "8px 0";
+    div.style.background = "#f9fafb";
+    div.style.borderRadius = "8px";
+
+    div.innerHTML = `
+      <span>${t.title}</span>
+      <span style="color:${t.type==="income"?"green":"red"};">
+        ${t.type==="income"?"+":"-"}₹${t.amount}
+      </span>
+      <button onclick="deleteTx('${t._id}')">X</button>
+    `;
+
+    list.appendChild(div);
+  });
+
+  const balance = income - expense;
+
+  document.getElementById("balance").innerText = "₹" + balance;
+  document.getElementById("income").innerText = "₹" + income;
+  document.getElementById("expense").innerText = "₹" + expense;
+  document.getElementById("saving").innerText = "₹" + balance;
+  document.getElementById("summary").innerText =
+    `Income: ₹${income} | Expenses: ₹${expense}`;
+
+  // ✅ SAFE CHART RENDER
+  setTimeout(() => {
+    const ctx = document.getElementById("financeChart");
+
+    if (!ctx) return;
+
+    if (chart) chart.destroy();
+
+    chart = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: ["Income", "Expense"],
+        datasets: [{
+          data: [income, expense],
+          backgroundColor: ["#16a34a", "#dc2626"]
+        }]
+      }
+    });
+
+  }, 100);
+}
+
+// ADD
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  await fetch("http://localhost:5000/api/finance", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      title: document.getElementById("title").value,
+      amount: Number(document.getElementById("amount").value),
+      type: document.getElementById("type").value,
+      userId: user.id
+    })
+  });
+
+  form.reset();
+  loadFinance();
+});
+
+// DELETE
+async function deleteTx(id) {
+  await fetch(`http://localhost:5000/api/finance/${id}`, {
+    method: "DELETE"
+  });
+
+  loadFinance();
+}
+
+// INIT
+(async () => {
+  await seedData();
+  loadFinance();
+})();
+</script>
+
+</body>
+</html>

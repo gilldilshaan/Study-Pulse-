@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assignments</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="theme.js"></script>
+</head>
+<body>
+
+<div class="app-shell">
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-logo">SP</div>
+      <div class="brand-text">
+        <h1>StudyPulse</h1>
+        <p>Productivity & Finance</p>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a href="index.html">Dashboard</a>
+      <a href="tasks.html">Tasks</a>
+      <a href="focus.html">Focus</a>
+      <a class="active" href="assignments.html">Assignments</a>
+      <a href="finance.html">Finance</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </header>
+
+  <main class="page page--assignments">
+    <section class="page-header">
+      <h2>📚 Assignments</h2>
+      <p>Track deadlines and progress.</p>
+    </section>
+
+    <!-- ADD FORM -->
+    <section class="card">
+      <form id="assignment-form" style="display:flex;gap:10px;">
+        <input id="title" placeholder="Assignment title" required
+          style="padding:10px;border-radius:6px;border:1px solid #ccc;">
+        
+        <input id="subject" placeholder="Subject" required
+          style="padding:10px;border-radius:6px;border:1px solid #ccc;">
+        
+        <button style="
+          background:#2563eb;
+          color:white;
+          border:none;
+          border-radius:6px;
+          padding:10px 14px;
+          cursor:pointer;">
+          Add
+        </button>
+      </form>
+    </section>
+
+    <!-- LIST -->
+    <section class="card">
+      <h3>All Assignments</h3>
+      <div id="assignment-list"></div>
+    </section>
+
+    <!-- SUMMARY -->
+    <section class="assignments-summary">
+      <div class="summary-card"><p>Total</p><p id="total">0</p></div>
+      <div class="summary-card"><p>Done</p><p id="done">0</p></div>
+      <div class="summary-card"><p>In Progress</p><p id="progress">0</p></div>
+      <div class="summary-card"><p>Not Started</p><p id="not">0</p></div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+const list = document.getElementById("assignment-list");
+const form = document.getElementById("assignment-form");
+
+// 🔥 SEED DATA (only once)
+async function seedData() {
+  const res = await fetch(`http://localhost:5000/api/assignments/${user.id}`);
+  const data = await res.json();
+
+  if (data.length === 0) {
+    const samples = [
+      { title: "Linear Algebra Problem Set 5", subject: "Mathematics" },
+      { title: "React Component Design Project", subject: "Computer Science" },
+      { title: "Biology Lab Report", subject: "Science" }
+    ];
+
+    for (let s of samples) {
+      await fetch("http://localhost:5000/api/assignments", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ ...s, userId: user.id })
+      });
+    }
+  }
+}
+
+// LOAD
+async function loadAssignments() {
+  const res = await fetch(`http://localhost:5000/api/assignments/${user.id}`);
+  const data = await res.json();
+
+  list.innerHTML = "";
+
+  let done = 0, progress = 0, not = 0;
+
+  data.forEach(a => {
+    if (a.status === "Done") done++;
+    else if (a.status === "In Progress") progress++;
+    else not++;
+
+    const color =
+      a.status === "Done" ? "#22c55e" :
+      a.status === "In Progress" ? "#3b82f6" : "#9ca3af";
+
+    const div = document.createElement("div");
+
+    div.style.padding = "14px";
+    div.style.margin = "10px 0";
+    div.style.background = "white";
+    div.style.borderRadius = "10px";
+    div.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)";
+    div.style.display = "flex";
+    div.style.justifyContent = "space-between";
+    div.style.alignItems = "center";
+
+    div.innerHTML = `
+      <div>
+        <h4 style="margin:0;">${a.title}</h4>
+        <p style="margin:2px 0;color:#6b7280;">${a.subject}</p>
+
+        <span style="
+          padding:4px 8px;
+          border-radius:6px;
+          font-size:12px;
+          background:${color};
+          color:white;">
+          ${a.status}
+        </span>
+      </div>
+
+      <div>
+        <select onchange="updateStatus('${a._id}', this.value)"
+          style="padding:5px;border-radius:6px;">
+          <option ${a.status==="Not Started"?"selected":""}>Not Started</option>
+          <option ${a.status==="In Progress"?"selected":""}>In Progress</option>
+          <option ${a.status==="Done"?"selected":""}>Done</option>
+        </select>
+
+        <button onclick="deleteAssignment('${a._id}')"
+          style="margin-left:8px;background:#ef4444;color:white;border:none;border-radius:6px;padding:5px 8px;">
+          X
+        </button>
+      </div>
+    `;
+
+    list.appendChild(div);
+  });
+
+  // SUMMARY
+  document.getElementById("total").innerText = data.length;
+  document.getElementById("done").innerText = done;
+  document.getElementById("progress").innerText = progress;
+  document.getElementById("not").innerText = not;
+}
+
+// ADD
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  await fetch("http://localhost:5000/api/assignments", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      title: document.getElementById("title").value,
+      subject: document.getElementById("subject").value,
+      userId: user.id
+    })
+  });
+
+  form.reset();
+  loadAssignments();
+});
+
+// UPDATE
+async function updateStatus(id, status) {
+  await fetch(`http://localhost:5000/api/assignments/${id}`, {
+    method: "PUT",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ status })
+  });
+
+  loadAssignments();
+}
+
+// DELETE
+async function deleteAssignment(id) {
+  await fetch(`http://localhost:5000/api/assignments/${id}`, {
+    method: "DELETE"
+  });
+
+  loadAssignments();
+}
+
+// INIT
+(async () => {
+  await seedData();
+  loadAssignments();
+})();
+</script>
+</body>
+</html>

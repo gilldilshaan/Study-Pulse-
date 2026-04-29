@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tasks</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="theme.js"></script>
+</head>
+<body>
+
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-logo">SP</div>
+        <div class="brand-text">
+          <h1>StudyPulse</h1>
+          <p>Productivity & Finance</p>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a href="index.html">Dashboard</a>
+        <a class="active" href="tasks.html">Tasks</a>
+        <a href="focus.html">Focus</a>
+        <a href="assignments.html">Assignments</a>
+        <a href="finance.html">Finance</a>
+        <a href="settings.html">Settings</a>
+
+        <button onclick="logout()" style="margin-left:15px;padding:6px 10px;background:#ef4444;color:white;border:none;border-radius:6px;">
+          Logout
+        </button>
+      </nav>
+    </header>
+
+    <main class="page page--tasks">
+      <section class="page-header section-header section-header--tasks">
+        <h2>✅ Task Manager</h2>
+        <p>Organize and track your daily tasks.</p>
+      </section>
+
+      <section class="dashboard dashboard--split">
+        
+        <!-- TASK CARD -->
+        <section class="card large card--accent-tasks">
+          
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h2>All Tasks</h2>
+          </div>
+
+          <!-- ADD TASK -->
+          <form id="task-form" style="margin:15px 0;">
+            <input id="task-input" type="text" placeholder="Enter new task..." required style="padding:8px;border-radius:6px;border:1px solid #ccc;">
+            <button type="submit" class="button-outline">Add</button>
+          </form>
+
+          <!-- TASK LIST -->
+          <div id="task-list"></div>
+
+        </section>
+
+        <!-- PROGRESS -->
+        <section class="card">
+          <h2>📊 Progress</h2>
+          <p id="progress-text">0 tasks</p>
+        </section>
+
+      </section>
+    </main>
+  </div>
+
+<script>
+// 🔒 AUTH
+const token = localStorage.getItem("token");
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!token) {
+  window.location.href = "login.html";
+}
+
+// 🔓 LOGOUT
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  window.location.href = "login.html";
+}
+
+// ELEMENTS
+const taskList = document.getElementById("task-list");
+const form = document.getElementById("task-form");
+const input = document.getElementById("task-input");
+const progressText = document.getElementById("progress-text");
+
+// LOAD TASKS
+async function loadTasks() {
+  const res = await fetch(`http://localhost:5000/api/tasks/${user.id}`);
+  const tasks = await res.json();
+
+  taskList.innerHTML = "";
+
+  tasks.forEach(task => {
+    const div = document.createElement("div");
+    div.style.display = "flex";
+    div.style.justifyContent = "space-between";
+    div.style.alignItems = "center";
+    div.style.padding = "10px";
+    div.style.margin = "6px 0";
+    div.style.background = "#f1f5f9";
+    div.style.borderRadius = "8px";
+
+    div.innerHTML = `
+      <span style="${task.completed ? 'text-decoration: line-through; opacity:0.6;' : ''}">
+        ${task.title}
+      </span>
+
+      <div>
+        <button onclick="toggleTask('${task._id}', ${task.completed})"
+          style="background:#22c55e;color:white;border:none;border-radius:5px;padding:4px 10px;margin-right:6px;cursor:pointer;">
+          ${task.completed ? 'Undo' : '✔'}
+        </button>
+
+        <button onclick="deleteTask('${task._id}')"
+          style="background:#ef4444;color:white;border:none;border-radius:5px;padding:4px 10px;cursor:pointer;">
+          X
+        </button>
+      </div>
+    `;
+
+    taskList.appendChild(div);
+  });
+
+  // PROGRESS
+  const completed = tasks.filter(t => t.completed).length;
+  progressText.innerText = `${completed} / ${tasks.length} completed`;
+}
+
+// ADD TASK
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const title = input.value;
+
+  await fetch("http://localhost:5000/api/tasks", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      title,
+      userId: user.id
+    })
+  });
+
+  input.value = "";
+  loadTasks();
+});
+
+// DELETE TASK
+async function deleteTask(id) {
+  await fetch(`http://localhost:5000/api/tasks/${id}`, {
+    method: "DELETE"
+  });
+
+  loadTasks();
+}
+
+// TOGGLE TASK
+async function toggleTask(id, completed) {
+  await fetch(`http://localhost:5000/api/tasks/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      completed: !completed
+    })
+  });
+
+  loadTasks();
+}
+
+// INIT
+loadTasks();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- 🔥 APPLY THEME FIRST -->
+  <script src="theme.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - StudyPulse</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app-shell">
+<header class="app-header">
+  <div class="brand">
+    <h2>StudyPulse</h2>
+  </div>
+
+  <nav class="nav">
+    <a href="index.html">Dashboard</a>
+    <a href="tasks.html">Tasks</a>
+    <a href="focus.html">Focus</a>
+    <a href="assignments.html">Assignments</a>
+    <a href="finance.html">Finance</a>
+    <a class="active" href="settings.html">Settings</a>
+  </nav>
+</header>
+  </header>
+
+  <main style="max-width:600px;margin:auto;padding:20px;">
+
+    <!-- PROFILE -->
+    <section class="card" style="text-align:center;">
+      <div style="width:70px;height:70px;border-radius:50%;background:#6366f1;
+      display:flex;align-items:center;justify-content:center;color:white;font-size:22px;margin:auto;">
+        DG
+      </div>
+
+      <h3 id="name" style="margin-top:10px;"></h3>
+      <p id="email" class="muted"></p>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="card">
+
+      <h3>Preferences</h3>
+
+      <div style="margin-top:15px;">
+        <label>Theme</label><br>
+        <select id="theme">
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+        </select>
+      </div>
+
+      <div style="margin-top:15px;">
+        <label>Currency</label><br>
+        <select id="currency">
+          <option value="INR">₹ INR</option>
+          <option value="USD">$ USD</option>
+        </select>
+      </div>
+
+      <div style="margin-top:15px;">
+        <label>Daily Goal</label><br>
+        <input id="goal" type="number" placeholder="e.g. 5">
+      </div>
+
+      <div style="margin-top:15px;">
+        <label>
+          <input type="checkbox" id="notifications">
+          Enable Notifications
+        </label>
+      </div>
+
+      <button onclick="saveSettings()" style="margin-top:20px;width:100%;">
+        Save Settings
+      </button>
+
+    </section>
+
+  </main>
+
+</div>
+
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+
+// 🔒 AUTH CHECK
+if (!user) {
+  alert("Please login again");
+  window.location.href = "login.html";
+}
+
+// ✅ FIX USER ID
+const userId = user._id || user.id;
+
+// PROFILE
+document.getElementById("name").innerText = user.name;
+document.getElementById("email").innerText = user.email;
+
+// APPLY THEME
+function applyTheme(theme) {
+  if (theme === "dark") {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
+}
+
+// LOAD SETTINGS
+async function loadSettings() {
+  try {
+    const res = await fetch(`http://localhost:5000/api/settings/${userId}`);
+    const data = await res.json();
+
+    document.getElementById("theme").value = data.theme || "dark";
+    document.getElementById("currency").value = data.currency || "INR";
+    document.getElementById("goal").value = data.dailyGoal || 5;
+    document.getElementById("notifications").checked = data.notifications || false;
+
+    // 🔥 APPLY + STORE
+    applyTheme(data.theme);
+    localStorage.setItem("theme", data.theme);
+
+  } catch (err) {
+    console.log("Load error:", err);
+  }
+}
+
+// SAVE SETTINGS
+async function saveSettings() {
+  try {
+    const theme = document.getElementById("theme").value;
+
+    const payload = {
+      userId,
+      theme,
+      currency: document.getElementById("currency").value,
+      dailyGoal: document.getElementById("goal").value,
+      notifications: document.getElementById("notifications").checked
+    };
+
+    await fetch("http://localhost:5000/api/settings", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    });
+
+    // 🔥 GLOBAL FIX
+    localStorage.setItem("theme", theme);
+    applyTheme(theme);
+
+    alert("Settings saved ✅");
+
+  } catch (err) {
+    console.log("Save error:", err);
+  }
+}
+
+// LIVE THEME CHANGE
+document.getElementById("theme").addEventListener("change", (e) => {
+  applyTheme(e.target.value);
+});
+
+// INIT
+loadSettings();
+</script>
+
+</body>
+</html>

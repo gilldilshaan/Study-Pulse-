@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="theme.js"></script>
+</head>
+<body>
+
+<div class="app-shell">
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-logo">SP</div>
+      <div class="brand-text">
+        <h1>StudyPulse</h1>
+        <p>Productivity & Finance</p>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a href="index.html">Dashboard</a>
+      <a href="tasks.html">Tasks</a>
+      <a class="active" href="focus.html">Focus</a>
+      <a href="assignments.html">Assignments</a>
+      <a href="finance.html">Finance</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </header>
+
+  <main class="page page--focus">
+    <section class="page-header section-header section-header--focus">
+      <h2>🎯 Focus Mode</h2>
+      <p>Stay in the zone with the Pomodoro technique.</p>
+    </section>
+
+    <!-- STATS -->
+    <section class="metrics-row focus-metrics">
+      <div class="metric-card">
+        <div class="metric-icon">⏱️</div>
+        <p class="metric-label">This Session</p>
+        <h3 class="metric-value" id="session-time">25:00</h3>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">📊</div>
+        <p class="metric-label">Sessions Today</p>
+        <h3 class="metric-value" id="session-count">0</h3>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">🔥</div>
+        <p class="metric-label">Total Focus</p>
+        <h3 class="metric-value" id="total-focus">0 min</h3>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">🎯</div>
+        <p class="metric-label">Break Time</p>
+        <h3 class="metric-value">5:00</h3>
+      </div>
+    </section>
+
+    <section class="focus-layout">
+
+      <!-- TIMER -->
+      <section class="card">
+        <div class="focus-timer">
+
+          <div id="ring" style="
+            width:180px;
+            height:180px;
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            margin:auto;
+            background:conic-gradient(#4f46e5 0%, #e5e7eb 0%);
+          ">
+            <div style="
+              width:140px;
+              height:140px;
+              border-radius:50%;
+              background:white;
+              display:flex;
+              flex-direction:column;
+              align-items:center;
+              justify-content:center;
+            ">
+              <span class="focus-label">Focus</span>
+              <span class="focus-time" id="timer">25:00</span>
+            </div>
+          </div>
+
+          <!-- BUTTONS -->
+          <div style="margin-top:20px; text-align:center;">
+            <button onclick="startTimer()" style="background:#22c55e;color:white;padding:6px 12px;border:none;border-radius:6px;margin:5px;">Start</button>
+            <button onclick="pauseTimer()" style="background:#f59e0b;color:white;padding:6px 12px;border:none;border-radius:6px;margin:5px;">Pause</button>
+            <button onclick="resetTimer()" style="background:#ef4444;color:white;padding:6px 12px;border:none;border-radius:6px;margin:5px;">Reset</button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TIPS -->
+      <section class="card card--muted">
+        <h2>💡 Focus Tips</h2>
+        <p>Stay consistent and avoid distractions.</p>
+      </section>
+
+    </section>
+  </main>
+</div>
+
+<script>
+// STATE
+let time = 1500;
+let interval = null;
+
+let sessions = parseInt(localStorage.getItem("sessions")) || 0;
+let totalFocus = parseInt(localStorage.getItem("totalFocus")) || 0;
+
+// DISPLAY
+function updateDisplay() {
+  const min = Math.floor(time / 60);
+  const sec = time % 60;
+
+  const formatted = `${min}:${sec < 10 ? "0" : ""}${sec}`;
+
+  document.getElementById("timer").innerText = formatted;
+  document.getElementById("session-time").innerText = formatted;
+}
+
+// RING
+function updateRing() {
+  const percent = ((1500 - time) / 1500) * 100;
+
+  document.getElementById("ring").style.background =
+    `conic-gradient(#4f46e5 ${percent}%, #e5e7eb ${percent}%)`;
+}
+
+// START
+function startTimer() {
+  if (interval) return;
+
+  interval = setInterval(() => {
+    if (time > 0) {
+      time--;
+      updateDisplay();
+      updateRing();
+    } else {
+      clearInterval(interval);
+      interval = null;
+
+      alert("Session Complete 🎉");
+
+      sessions++;
+      totalFocus += 25;
+
+      localStorage.setItem("sessions", sessions);
+      localStorage.setItem("totalFocus", totalFocus);
+
+      updateStats();
+      resetTimer();
+    }
+  }, 1000);
+}
+
+// PAUSE
+function pauseTimer() {
+  clearInterval(interval);
+  interval = null;
+}
+
+// RESET
+function resetTimer() {
+  clearInterval(interval);
+  interval = null;
+  time = 1500;
+  updateDisplay();
+  updateRing();
+}
+
+// STATS
+function updateStats() {
+  document.getElementById("session-count").innerText = sessions;
+  document.getElementById("total-focus").innerText = totalFocus + " min";
+}
+
+// INIT
+updateDisplay();
+updateStats();
+updateRing();
+</script>
+
+</body>
+</html>
