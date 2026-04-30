@@ -90,16 +90,23 @@
   <script>
     const form = document.getElementById("login-form");
 
-    async function sha256(text) {
-      const enc = new TextEncoder().encode(text);
-      const buf = await crypto.subtle.digest("SHA-256", enc);
-      return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+    function hash(text) {
+      const s = String(text ?? "");
+      let h = 2166136261;
+      for (let i = 0; i < s.length; i++) {
+        h ^= s.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return (h >>> 0).toString(16).padStart(8, "0");
     }
 
     function randomToken() {
-      const a = new Uint8Array(24);
-      crypto.getRandomValues(a);
-      return [...a].map(b => b.toString(16).padStart(2, "0")).join("");
+      if (globalThis.crypto?.getRandomValues) {
+        const a = new Uint8Array(24);
+        crypto.getRandomValues(a);
+        return [...a].map(b => b.toString(16).padStart(2, "0")).join("");
+      }
+      return `t_${Date.now()}_${Math.random().toString(16).slice(2)}`;
     }
 
     form.addEventListener("submit", async (e) => {
@@ -147,8 +154,8 @@
             return;
           }
 
-          const hash = await sha256(password);
-          if (hash !== u.passwordHash) {
+          const h = hash(password);
+          if (h !== u.passwordHash) {
             alert("Invalid email or password.");
             return;
           }
