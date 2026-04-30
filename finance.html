@@ -6,7 +6,6 @@
   <link rel="stylesheet" href="style.css">
   <script src="theme.js"></script>
 
-  <!-- ✅ Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -38,192 +37,783 @@
       <p>Track your income and expenses</p>
     </section>
 
-    <!-- ADD -->
-    <section class="card" style="padding:20px;">
-      <form id="finance-form" style="display:flex;gap:10px;flex-wrap:wrap;">
-        <input id="title" placeholder="Title" required style="padding:10px;border-radius:8px;border:1px solid #ddd;flex:1;">
-        <input id="amount" type="number" placeholder="Amount" required style="padding:10px;border-radius:8px;border:1px solid #ddd;width:120px;">
-        <select id="type" style="padding:10px;border-radius:8px;border:1px solid #ddd;">
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
-        </select>
-        <button style="background:#4f46e5;color:white;border:none;padding:10px 16px;border-radius:8px;">
-          Add
-        </button>
-      </form>
+    <div class="finance-toolbar">
+      <button class="btn-outline" type="button" id="filtersToggle">Filters</button>
+      <button class="btn-primary btn" type="button" id="addOpen">Add</button>
+    </div>
+
+    <section class="card finance-filters" id="filtersPanel" hidden>
+      <div class="filters-grid">
+        <div class="filters-field">
+          <label class="filters-label" for="filterQ">Search</label>
+          <input id="filterQ" type="text" placeholder="Search title or note">
+        </div>
+        <div class="filters-field">
+          <label class="filters-label" for="filterType">Type</label>
+          <select id="filterType">
+            <option value="all">All</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+        </div>
+        <div class="filters-field">
+          <label class="filters-label" for="filterCategory">Category</label>
+          <select id="filterCategory"></select>
+        </div>
+        <div class="filters-field">
+          <label class="filters-label" for="filterRange">Range</label>
+          <select id="filterRange">
+            <option value="7d">Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="all">All time</option>
+          </select>
+        </div>
+      </div>
+      <div class="filters-active" id="activeFilters"></div>
     </section>
 
-    <!-- BALANCE -->
-    <section class="card" style="padding:20px;margin-top:15px;">
-      <h3>Total Balance</h3>
-      <h1 id="balance">₹0</h1>
-      <p id="summary"></p>
-    </section>
-
-    <!-- STATS -->
-    <section style="display:flex;gap:15px;margin-top:15px;">
-      <div class="card" style="flex:1;padding:15px;">
-        <p>Income</p>
-        <h3 id="income" style="color:#16a34a;">₹0</h3>
+    <section class="dashboard dashboard--split finance-top">
+      <div class="card finance-balance large">
+        <h2>This Week</h2>
+        <h1 id="weekSpend">₹0</h1>
+        <div class="finance-top-meta">
+          <div class="mini-metric">
+            <div class="mini-metric-label">vs last week</div>
+            <div class="mini-metric-value" id="weekChange">—</div>
+          </div>
+          <div class="mini-metric">
+            <div class="mini-metric-label">Savings rate</div>
+            <div class="mini-metric-value" id="savingsRate">—</div>
+          </div>
+          <div class="mini-metric">
+            <div class="mini-metric-label">Net</div>
+            <div class="mini-metric-value" id="weekNet">₹0</div>
+          </div>
+        </div>
       </div>
 
-      <div class="card" style="flex:1;padding:15px;">
-        <p>Expenses</p>
-        <h3 id="expense" style="color:#dc2626;">₹0</h3>
-      </div>
-
-      <div class="card" style="flex:1;padding:15px;">
-        <p>Savings</p>
-        <h3 id="saving" style="color:#2563eb;">₹0</h3>
+      <div class="card finance-health">
+        <h3>Financial Health</h3>
+        <div class="health-score">
+          <div class="health-score__value" id="healthScore">0</div>
+          <div class="health-score__label">/100</div>
+        </div>
+        <div class="health-notes" id="healthNotes"></div>
       </div>
     </section>
 
-    <!-- CHART -->
-    <section class="card" style="margin-top:15px;padding:20px;">
-      <h3>Income vs Expense</h3>
-      <canvas id="financeChart" style="max-height:250px;"></canvas>
+    <section class="card finance-insights">
+      <h3>💡 Insights</h3>
+      <ul class="insights-list" id="insightsList"></ul>
     </section>
 
-    <!-- LIST -->
-    <section class="card" style="margin-top:15px;padding:20px;">
-      <h3>Recent Transactions</h3>
-      <div id="list"></div>
+    <section class="dashboard dashboard--split finance-charts">
+      <div class="card">
+        <div class="card-head">
+          <h3>Category Breakdown</h3>
+          <button class="btn-outline finance-pill" type="button" id="clearCategory" hidden>Clear</button>
+        </div>
+        <div class="chart-frame chart-frame--pie">
+          <canvas id="financeChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3>Spending Trend</h3>
+          <span class="finance-pill">7D</span>
+        </div>
+        <div class="chart-frame chart-frame--trend">
+          <canvas id="spendingTrend"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="card finance-transactions">
+      <div class="card-head">
+        <h3>Transactions</h3>
+        <span class="finance-muted" id="txCount"></span>
+      </div>
+      <div id="list" class="tx-list"></div>
     </section>
 
   </main>
 </div>
 
+<button id="txFab" class="fab" type="button" aria-label="Add transaction">+</button>
+
+<div class="modal" id="txModal" hidden>
+  <div class="modal__backdrop" data-close></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="txModalTitle">
+    <div class="modal__header">
+      <h3 id="txModalTitle">Add Transaction</h3>
+      <button type="button" class="icon-btn" data-close aria-label="Close">✕</button>
+    </div>
+    <form id="finance-form" class="form-grid">
+      <div class="form-field">
+        <label class="form-label" for="title">Title</label>
+        <input id="title" placeholder="e.g. Groceries" required>
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="amount">Amount (₹)</label>
+        <input id="amount" type="number" placeholder="2000" min="0" step="1" required>
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="type">Type</label>
+        <select id="type">
+          <option value="expense">Expense</option>
+          <option value="income">Income</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="category">Category</label>
+        <select id="category"></select>
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="date">Date</label>
+        <input id="date" type="date" required>
+      </div>
+      <div class="form-field form-field--full">
+        <label class="form-label" for="note">Note</label>
+        <input id="note" type="text" placeholder="Optional">
+      </div>
+      <div class="modal__actions">
+        <button class="btn-outline" type="button" data-close>Cancel</button>
+        <button class="btn btn-primary" type="submit">Add</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
 const user = JSON.parse(localStorage.getItem("user"));
+if (!user?.id) window.location.href = "login.html";
+
+const API_BASE = "http://localhost:5000/api/finance";
+const STORAGE_KEY = `sp_finance_${user.id}`;
+
 const list = document.getElementById("list");
 const form = document.getElementById("finance-form");
 
-let chart;
+const fmtINR = new Intl.NumberFormat("en-IN", {
+  style: "currency",
+  currency: "INR",
+  maximumFractionDigits: 0
+});
 
-// SEED DATA
-async function seedData() {
-  const res = await fetch(`http://localhost:5000/api/finance/${user.id}`);
-  const data = await res.json();
+const categories = [
+  { key: "Food", icon: "🍔", color: "#f97316" },
+  { key: "Education", icon: "📚", color: "#6366f1" },
+  { key: "Travel", icon: "✈️", color: "#06b6d4" },
+  { key: "Bills", icon: "🧾", color: "#f43f5e" },
+  { key: "Shopping", icon: "🛍️", color: "#a855f7" },
+  { key: "Entertainment", icon: "🎮", color: "#22c55e" },
+  { key: "Health", icon: "🩺", color: "#ef4444" },
+  { key: "Other", icon: "🧩", color: "#94a3b8" }
+];
 
-  if (data.length === 0) {
-    const sample = [
-      { title: "Freelance", amount: 10000, type: "income" },
-      { title: "Groceries", amount: 1500, type: "expense" },
-      { title: "Travel", amount: 2000, type: "expense" }
-    ];
+const state = {
+  tx: [],
+  activeCategory: null,
+  filters: {
+    q: "",
+    type: "all",
+    category: "all",
+    range: "7d"
+  }
+};
 
-    for (let t of sample) {
-      await fetch("http://localhost:5000/api/finance", {
+let pieChart;
+let trendChart;
+
+function byId(id) { return document.getElementById(id); }
+
+function startOfDay(d) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+
+function dayKey(d) {
+  const x = startOfDay(d);
+  return x.toISOString().slice(0, 10);
+}
+
+function safeDate(v) {
+  const d = v ? new Date(v) : new Date();
+  if (Number.isNaN(d.getTime())) return new Date();
+  return d;
+}
+
+function inferCategoryFromTitle(title) {
+  const s = String(title || "").toLowerCase();
+  if (/(food|grocer|restaurant|meal|snack|cafe)/.test(s)) return "Food";
+  if (/(book|course|class|tuition|study|exam)/.test(s)) return "Education";
+  if (/(travel|uber|ola|metro|bus|train|flight|cab)/.test(s)) return "Travel";
+  if (/(bill|rent|electric|water|gas|wifi|internet)/.test(s)) return "Bills";
+  if (/(shop|amazon|flipkart|mall|clothes)/.test(s)) return "Shopping";
+  if (/(movie|game|netflix|spotify|music)/.test(s)) return "Entertainment";
+  if (/(doctor|medicine|pharmacy|gym|health)/.test(s)) return "Health";
+  return "Other";
+}
+
+function normalizeTx(t) {
+  const date = safeDate(t.date || t.createdAt || t.updatedAt);
+  const category = t.category || inferCategoryFromTitle(t.title);
+  return {
+    id: t._id || t.id || String(Math.random()),
+    title: String(t.title || "").trim() || "Untitled",
+    amount: Number(t.amount || 0),
+    type: t.type === "income" ? "income" : "expense",
+    category: categories.some(c => c.key === category) ? category : "Other",
+    note: String(t.note || ""),
+    date,
+    userId: t.userId
+  };
+}
+
+function setSelectOptions(selectEl, options) {
+  selectEl.innerHTML = "";
+  for (const opt of options) {
+    const o = document.createElement("option");
+    o.value = opt.value;
+    o.textContent = opt.label;
+    selectEl.appendChild(o);
+  }
+}
+
+function setCategoriesSelects() {
+  const prevFilter = byId("filterCategory")?.value || state.filters.category;
+  const prevModal = byId("category")?.value || categories[0].key;
+  const catOptions = [{ value: "all", label: "All" }, ...categories.map(c => ({ value: c.key, label: `${c.icon} ${c.key}` }))];
+  setSelectOptions(byId("filterCategory"), catOptions);
+  setSelectOptions(byId("category"), categories.map(c => ({ value: c.key, label: `${c.icon} ${c.key}` })));
+  byId("filterCategory").value = prevFilter;
+  byId("category").value = prevModal;
+}
+
+function setDefaultDate() {
+  byId("date").value = dayKey(new Date());
+}
+
+function toggleModal(open) {
+  const modal = byId("txModal");
+  modal.hidden = !open;
+  document.documentElement.classList.toggle("modal-open", open);
+  if (open) {
+    setDefaultDate();
+    setTimeout(() => byId("title").focus(), 0);
+  }
+}
+
+function toggleFilters() {
+  const panel = byId("filtersPanel");
+  panel.hidden = !panel.hidden;
+  byId("filtersToggle").setAttribute("aria-expanded", String(!panel.hidden));
+}
+
+function withinRange(txDate, range) {
+  if (range === "all") return true;
+  const today = startOfDay(new Date()).getTime();
+  const d = startOfDay(txDate).getTime();
+  const diffDays = Math.floor((today - d) / (24 * 60 * 60 * 1000));
+  if (range === "7d") return diffDays >= 0 && diffDays <= 6;
+  if (range === "30d") return diffDays >= 0 && diffDays <= 29;
+  return true;
+}
+
+function applyFilters(items) {
+  const q = state.filters.q.trim().toLowerCase();
+  return items.filter(t => {
+    if (!withinRange(t.date, state.filters.range)) return false;
+    if (state.filters.type !== "all" && t.type !== state.filters.type) return false;
+    if (state.filters.category !== "all" && t.category !== state.filters.category) return false;
+    if (state.activeCategory && t.category !== state.activeCategory) return false;
+    if (q && !(t.title.toLowerCase().includes(q) || t.note.toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+
+function applyTrendFilters(items) {
+  const q = state.filters.q.trim().toLowerCase();
+  return items.filter(t => {
+    if (!withinRange(t.date, "7d")) return false;
+    if (state.filters.category !== "all" && t.category !== state.filters.category) return false;
+    if (state.activeCategory && t.category !== state.activeCategory) return false;
+    if (q && !(t.title.toLowerCase().includes(q) || t.note.toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+
+function computeWeekBuckets(items) {
+  const today = startOfDay(new Date()).getTime();
+  const week = [];
+  const lastWeek = [];
+  for (const t of items) {
+    const d = startOfDay(t.date).getTime();
+    const diffDays = Math.floor((today - d) / (24 * 60 * 60 * 1000));
+    if (diffDays >= 0 && diffDays <= 6) week.push(t);
+    if (diffDays >= 7 && diffDays <= 13) lastWeek.push(t);
+  }
+  return { week, lastWeek };
+}
+
+function sumBy(items, pred) {
+  let s = 0;
+  for (const t of items) if (pred(t)) s += t.amount;
+  return s;
+}
+
+function pctChange(cur, prev) {
+  if (prev <= 0 && cur <= 0) return 0;
+  if (prev <= 0) return 100;
+  return ((cur - prev) / prev) * 100;
+}
+
+function renderTop(itemsAll) {
+  const { week, lastWeek } = computeWeekBuckets(itemsAll);
+
+  const weekIncome = sumBy(week, t => t.type === "income");
+  const weekExpense = sumBy(week, t => t.type === "expense");
+  const lastWeekExpense = sumBy(lastWeek, t => t.type === "expense");
+
+  const weekNet = weekIncome - weekExpense;
+  const change = pctChange(weekExpense, lastWeekExpense);
+  const savingsRate = weekIncome > 0 ? (weekNet / weekIncome) * 100 : (weekNet > 0 ? 100 : 0);
+
+  byId("weekSpend").textContent = fmtINR.format(weekExpense);
+  byId("weekNet").textContent = fmtINR.format(weekNet);
+  byId("weekChange").textContent = `${change >= 0 ? "+" : ""}${Math.round(change)}%`;
+  byId("weekChange").classList.toggle("finance-badge--good", change <= 0);
+  byId("weekChange").classList.toggle("finance-badge--warn", change > 0);
+  byId("savingsRate").textContent = `${Math.max(0, Math.round(savingsRate))}%`;
+
+  return { weekIncome, weekExpense, weekNet, lastWeekExpense };
+}
+
+function renderInsights(itemsAll) {
+  const { week, lastWeek } = computeWeekBuckets(itemsAll);
+  const weekExpense = sumBy(week, t => t.type === "expense");
+  const lastWeekExpense = sumBy(lastWeek, t => t.type === "expense");
+
+  const weekNet = sumBy(week, t => t.type === "income") - weekExpense;
+  const change = pctChange(weekExpense, lastWeekExpense);
+
+  const byCategory = new Map();
+  for (const t of week) {
+    if (t.type !== "expense") continue;
+    byCategory.set(t.category, (byCategory.get(t.category) || 0) + t.amount);
+  }
+  const top = [...byCategory.entries()].sort((a, b) => b[1] - a[1])[0];
+  const topCategory = top?.[0];
+  const topAmount = top?.[1] || 0;
+  const topPct = weekExpense > 0 ? Math.round((topAmount / weekExpense) * 100) : 0;
+
+  const listEl = byId("insightsList");
+  listEl.innerHTML = "";
+
+  const insights = [];
+  if (topCategory) insights.push(`You spent ${topPct}% on ${topCategory.toLowerCase()} ${categories.find(c => c.key === topCategory)?.icon || ""}`.trim());
+  insights.push(`Spending ${change >= 0 ? "increased" : "decreased"} ${Math.abs(Math.round(change))}% from last week`);
+  insights.push(`${weekNet >= 0 ? "You saved" : "You overspent"} ${fmtINR.format(Math.abs(weekNet))} this week`);
+
+  for (const text of insights) {
+    const li = document.createElement("li");
+    li.textContent = text;
+    listEl.appendChild(li);
+  }
+
+  return { topCategory, topPct, weekExpense, weekNet, change };
+}
+
+function computeHealthScore({ weekExpense, lastWeekExpense, topPct, weekNet }) {
+  let score = 85;
+  const notes = [];
+
+  if (weekNet >= 0) notes.push({ tone: "good", text: "✔ Good savings momentum" });
+  else notes.push({ tone: "warn", text: "⚠ Net negative week" });
+
+  if (topPct >= 45) { score -= 18; notes.push({ tone: "warn", text: "⚠ High concentration in one category" }); }
+  else notes.push({ tone: "good", text: "✔ Healthy category mix" });
+
+  const change = pctChange(weekExpense, lastWeekExpense);
+  if (change > 20) { score -= 16; notes.push({ tone: "warn", text: "⚠ Spending spiked vs last week" }); }
+  else if (change < -10) { score += 6; notes.push({ tone: "good", text: "✔ Spending improved vs last week" }); }
+  else notes.push({ tone: "good", text: "✔ Stable spending pattern" });
+
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  return { score, notes };
+}
+
+function renderHealth(health) {
+  byId("healthScore").textContent = String(health.score);
+  const notesEl = byId("healthNotes");
+  notesEl.innerHTML = "";
+  for (const n of health.notes.slice(0, 3)) {
+    const div = document.createElement("div");
+    div.className = `health-note health-note--${n.tone}`;
+    div.textContent = n.text;
+    notesEl.appendChild(div);
+  }
+}
+
+function buildPieData(items) {
+  const totals = new Map();
+  for (const t of items) {
+    if (t.type !== "expense") continue;
+    totals.set(t.category, (totals.get(t.category) || 0) + t.amount);
+  }
+  const rows = [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 7);
+  const labels = rows.map(r => r[0]);
+  const values = rows.map(r => r[1]);
+  const colors = labels.map(l => categories.find(c => c.key === l)?.color || "#94a3b8");
+  return { labels, values, colors };
+}
+
+function renderPie(itemsFiltered) {
+  const ctx = document.getElementById("financeChart");
+  if (!ctx) return;
+
+  const pie = buildPieData(itemsFiltered);
+  if (!pie.labels.length) {
+    if (pieChart) pieChart.destroy();
+    pieChart = null;
+    return;
+  }
+
+  if (pieChart) pieChart.destroy();
+  pieChart = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: pie.labels,
+      datasets: [{
+        data: pie.values,
+        backgroundColor: pie.colors,
+        borderColor: "rgba(255,255,255,.9)",
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 650, easing: "easeOutQuart" },
+      plugins: {
+        legend: { position: "bottom", labels: { boxWidth: 10, boxHeight: 10 } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.label}: ${fmtINR.format(ctx.raw)}`
+          }
+        }
+      },
+      onClick: (evt, elements) => {
+        if (!elements?.length) return;
+        const idx = elements[0].index;
+        const category = pieChart.data.labels[idx];
+        const next = state.activeCategory === category ? null : category;
+        state.activeCategory = next;
+        state.filters.category = next || "all";
+        byId("filterCategory").value = state.filters.category;
+        renderAll();
+      }
+    }
+  });
+}
+
+function renderTrend(itemsAll) {
+  const ctx = document.getElementById("spendingTrend");
+  if (!ctx) return;
+
+  const today = startOfDay(new Date());
+  const labels = [];
+  const values = [];
+  const points = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key = dayKey(d);
+    labels.push(d.toLocaleDateString(undefined, { weekday: "short" }));
+    const spend = sumBy(itemsAll, t => t.type === "expense" && dayKey(t.date) === key);
+    values.push(spend);
+  }
+
+  const avg = values.reduce((a, b) => a + b, 0) / Math.max(1, values.length);
+  for (const v of values) points.push(v > avg * 1.35 ? "#ef4444" : v > avg * 1.1 ? "#f97316" : "#6366f1");
+
+  if (trendChart) trendChart.destroy();
+  trendChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Daily spending",
+        data: values,
+        borderColor: "#6366f1",
+        backgroundColor: "rgba(99,102,241,.15)",
+        fill: true,
+        tension: 0.35,
+        pointRadius: values.map(v => (v > avg * 1.35 ? 5 : 3)),
+        pointBackgroundColor: points,
+        pointBorderColor: "rgba(255,255,255,.85)",
+        pointBorderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 700, easing: "easeOutQuart" },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${fmtINR.format(ctx.raw)}`
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: (v) => fmtINR.format(v).replace("₹", "₹ ")
+          },
+          grid: { color: "rgba(148,163,184,.2)" }
+        },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+function renderList(itemsFiltered) {
+  const items = [...itemsFiltered].sort((a, b) => b.date.getTime() - a.date.getTime());
+  byId("txCount").textContent = `${items.length} shown`;
+
+  const today = startOfDay(new Date()).getTime();
+  const groups = { Today: [], Yesterday: [], Older: [] };
+
+  for (const t of items) {
+    const d = startOfDay(t.date).getTime();
+    const diff = Math.floor((today - d) / (24 * 60 * 60 * 1000));
+    if (diff === 0) groups.Today.push(t);
+    else if (diff === 1) groups.Yesterday.push(t);
+    else groups.Older.push(t);
+  }
+
+  list.innerHTML = "";
+  for (const [label, arr] of Object.entries(groups)) {
+    if (!arr.length) continue;
+    const wrap = document.createElement("div");
+    wrap.className = "tx-group";
+    wrap.innerHTML = `<div class="tx-group__head"><span class="tx-group__title">${label}</span><span class="tx-group__count">${arr.length}</span></div>`;
+
+    for (const t of arr) {
+      const cat = categories.find(c => c.key === t.category) || categories[categories.length - 1];
+      const slug = String(cat.key).toLowerCase();
+      const row = document.createElement("div");
+      row.className = `transaction tx-row`;
+      row.dataset.id = t.id;
+      row.innerHTML = `
+        <div class="tx-left">
+          <div class="tx-icon ${t.type === "income" ? "tx-icon--income" : `tx-icon--${slug}`}">${t.type === "income" ? "💰" : cat.icon}</div>
+          <div class="transaction-main">
+            <div class="tx-title">${escapeHtml(t.title)}</div>
+            <div class="transaction-meta">${t.category} • ${t.date.toLocaleDateString(undefined, { month: "short", day: "numeric" })}${t.note ? ` • ${escapeHtml(t.note)}` : ""}</div>
+          </div>
+        </div>
+        <div class="tx-right">
+          <div class="${t.type === "income" ? "transaction-amount--income" : "transaction-amount--expense"} tx-amount">
+            ${t.type === "income" ? "+" : "-"}${fmtINR.format(t.amount)}
+          </div>
+          <button class="tx-delete" type="button" data-id="${t.id}" aria-label="Delete">✕</button>
+        </div>
+      `;
+      wrap.appendChild(row);
+    }
+
+    list.appendChild(wrap);
+  }
+}
+
+function renderActiveFilters() {
+  const tags = [];
+  if (state.filters.q.trim()) tags.push({ key: "q", label: `Search: ${state.filters.q.trim()}` });
+  if (state.filters.type !== "all") tags.push({ key: "type", label: state.filters.type });
+  if (state.filters.category !== "all") tags.push({ key: "category", label: `Category: ${state.filters.category}` });
+  if (state.filters.range !== "7d") tags.push({ key: "range", label: state.filters.range });
+
+  const el = byId("activeFilters");
+  el.innerHTML = "";
+  for (const t of tags) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "filter-tag";
+    btn.textContent = t.label;
+    btn.dataset.key = t.key;
+    el.appendChild(btn);
+  }
+
+  const clearBtn = byId("clearCategory");
+  clearBtn.hidden = state.filters.category === "all";
+}
+
+function renderAll() {
+  renderActiveFilters();
+  const filtered = applyFilters(state.tx);
+  renderPie(filtered);
+  renderTrend(applyTrendFilters(state.tx));
+  renderList(filtered);
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+async function fetchFinance() {
+  try {
+    const res = await fetch(`${API_BASE}/${user.id}`);
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error("Invalid response");
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    return data;
+  } catch (e) {
+    const cached = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    if (Array.isArray(cached)) return cached;
+    return [];
+  }
+}
+
+async function seedDataIfEmpty(existing) {
+  if (existing.length) return;
+  const today = dayKey(new Date());
+  const sample = [
+    { title: "Freelance", amount: 10000, type: "income", category: "Other", date: today, note: "Client work" },
+    { title: "Groceries", amount: 1500, type: "expense", category: "Food", date: today, note: "" },
+    { title: "Travel", amount: 2000, type: "expense", category: "Travel", date: today, note: "" }
+  ];
+
+  for (const t of sample) {
+    try {
+      await fetch(API_BASE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...t, userId: user.id })
       });
-    }
+    } catch {}
   }
 }
 
-// LOAD
 async function loadFinance() {
-  const res = await fetch(`http://localhost:5000/api/finance/${user.id}`);
-const data = await res.json();
+  const raw = await fetchFinance();
+  await seedDataIfEmpty(raw);
+  const raw2 = await fetchFinance();
+  state.tx = raw2.map(normalizeTx);
 
-if (!Array.isArray(data)) {
-  console.error("Invalid data:", data);
-  return;
+  setCategoriesSelects();
+  const top = renderTop(state.tx);
+  const insights = renderInsights(state.tx);
+  renderHealth(computeHealthScore({ ...top, ...insights }));
+  renderAll();
 }
 
-  list.innerHTML = "";
-
-  let income = 0;
-  let expense = 0;
-
-  data.forEach(t => {
-    if (t.type === "income") income += t.amount;
-    else expense += t.amount;
-
-    const div = document.createElement("div");
-
-    div.style.display = "flex";
-    div.style.justifyContent = "space-between";
-    div.style.padding = "10px";
-    div.style.margin = "8px 0";
-    div.style.background = "#f9fafb";
-    div.style.borderRadius = "8px";
-
-    div.innerHTML = `
-      <span>${t.title}</span>
-      <span style="color:${t.type==="income"?"green":"red"};">
-        ${t.type==="income"?"+":"-"}₹${t.amount}
-      </span>
-      <button onclick="deleteTx('${t._id}')">X</button>
-    `;
-
-    list.appendChild(div);
-  });
-
-  const balance = income - expense;
-
-  document.getElementById("balance").innerText = "₹" + balance;
-  document.getElementById("income").innerText = "₹" + income;
-  document.getElementById("expense").innerText = "₹" + expense;
-  document.getElementById("saving").innerText = "₹" + balance;
-  document.getElementById("summary").innerText =
-    `Income: ₹${income} | Expenses: ₹${expense}`;
-
-  // ✅ SAFE CHART RENDER
-  setTimeout(() => {
-    const ctx = document.getElementById("financeChart");
-
-    if (!ctx) return;
-
-    if (chart) chart.destroy();
-
-    chart = new Chart(ctx, {
-      type: "pie",
-      data: {
-        labels: ["Income", "Expense"],
-        datasets: [{
-          data: [income, expense],
-          backgroundColor: ["#16a34a", "#dc2626"]
-        }]
-      }
-    });
-
-  }, 100);
-}
-
-// ADD
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  await fetch("http://localhost:5000/api/finance", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({
-      title: document.getElementById("title").value,
-      amount: Number(document.getElementById("amount").value),
-      type: document.getElementById("type").value,
-      userId: user.id
-    })
-  });
+  const payload = {
+    title: byId("title").value,
+    amount: Number(byId("amount").value),
+    type: byId("type").value,
+    category: byId("category").value,
+    date: byId("date").value,
+    note: byId("note").value,
+    userId: user.id
+  };
+
+  try {
+    await fetch(API_BASE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  } catch {
+    const cached = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    cached.unshift({ ...payload, _id: String(Date.now()) });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cached));
+  }
 
   form.reset();
-  loadFinance();
+  toggleModal(false);
+  await loadFinance();
 });
 
-// DELETE
-async function deleteTx(id) {
-  await fetch(`http://localhost:5000/api/finance/${id}`, {
-    method: "DELETE"
-  });
+list.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".tx-delete");
+  if (!btn) return;
+  const id = btn.dataset.id;
 
-  loadFinance();
-}
+  try {
+    await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+  } catch {
+    const cached = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]").filter(t => (t._id || t.id) !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cached));
+  }
+  await loadFinance();
+});
 
-// INIT
+byId("filtersToggle").addEventListener("click", toggleFilters);
+byId("addOpen").addEventListener("click", () => toggleModal(true));
+byId("txFab").addEventListener("click", () => toggleModal(true));
+byId("clearCategory").addEventListener("click", () => {
+  state.activeCategory = null;
+  state.filters.category = "all";
+  byId("filterCategory").value = "all";
+  renderAll();
+});
+
+const modal = byId("txModal");
+modal.addEventListener("click", (e) => {
+  if (e.target?.matches("[data-close]")) toggleModal(false);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !modal.hidden) toggleModal(false);
+});
+
+let searchT;
+byId("filterQ").addEventListener("input", (e) => {
+  state.filters.q = e.target.value;
+  window.clearTimeout(searchT);
+  searchT = window.setTimeout(() => renderAll(), 120);
+});
+byId("filterType").addEventListener("change", (e) => { state.filters.type = e.target.value; renderAll(); });
+byId("filterCategory").addEventListener("change", (e) => {
+  state.filters.category = e.target.value;
+  state.activeCategory = state.filters.category === "all" ? null : state.filters.category;
+  renderAll();
+});
+byId("filterRange").addEventListener("change", (e) => { state.filters.range = e.target.value; renderAll(); });
+
+byId("activeFilters").addEventListener("click", (e) => {
+  const tag = e.target.closest(".filter-tag");
+  if (!tag) return;
+  const k = tag.dataset.key;
+  if (k === "q") state.filters.q = "";
+  if (k === "type") state.filters.type = "all";
+  if (k === "category") state.filters.category = "all";
+  if (k === "range") state.filters.range = "7d";
+  if (k === "category") state.activeCategory = null;
+  byId("filterQ").value = state.filters.q;
+  byId("filterType").value = state.filters.type;
+  byId("filterCategory").value = state.filters.category;
+  byId("filterRange").value = state.filters.range;
+  renderAll();
+});
+
 (async () => {
-  await seedData();
-  loadFinance();
+  setCategoriesSelects();
+  setDefaultDate();
+  await loadFinance();
 })();
 </script>
 
