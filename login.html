@@ -90,6 +90,18 @@
   <script>
     const form = document.getElementById("login-form");
 
+    async function sha256(text) {
+      const enc = new TextEncoder().encode(text);
+      const buf = await crypto.subtle.digest("SHA-256", enc);
+      return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    function randomToken() {
+      const a = new Uint8Array(24);
+      crypto.getRandomValues(a);
+      return [...a].map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -113,7 +125,9 @@
           localStorage.setItem("token", data.token);
 
           // Save user
-          localStorage.setItem("user", JSON.stringify(data.user));
+          const u = data.user || {};
+          const normalized = { ...u, id: u.id || u._id };
+          localStorage.setItem("user", JSON.stringify(normalized));
 
           alert("Login successful 🚀");
 
@@ -125,8 +139,28 @@
         }
 
       } catch (error) {
-        console.error("Error:", error);
-        alert("Server error. Make sure backend is running.");
+        try {
+          const users = JSON.parse(localStorage.getItem("sp_users") || "[]");
+          const u = users.find(x => String(x.email || "").toLowerCase() === String(email).toLowerCase());
+          if (!u) {
+            alert("No account found. Please register first.");
+            return;
+          }
+
+          const hash = await sha256(password);
+          if (hash !== u.passwordHash) {
+            alert("Invalid email or password.");
+            return;
+          }
+
+          localStorage.setItem("token", randomToken());
+          localStorage.setItem("user", JSON.stringify({ id: u.id, name: u.name, email: u.email }));
+          alert("Login successful 🚀");
+          window.location.href = "index.html";
+        } catch (e2) {
+          console.error("Error:", error);
+          alert("Server error. Make sure backend is running.");
+        }
       }
     });
   </script>

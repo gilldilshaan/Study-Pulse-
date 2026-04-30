@@ -68,8 +68,9 @@
 // 🔒 AUTH
 const token = localStorage.getItem("token");
 const user = JSON.parse(localStorage.getItem("user"));
+const userId = user?._id || user?.id;
 
-if (!token) {
+if (!token || !userId) {
   window.location.href = "login.html";
 }
 
@@ -83,7 +84,7 @@ function logout() {
 // LOAD DASHBOARD DATA
 async function loadDashboard() {
   try {
-    const res = await fetch(`http://localhost:5000/api/tasks/${user.id}`);
+    const res = await fetch(`http://localhost:5000/api/tasks/${userId}`);
     const tasks = await res.json();
 
     const completed = tasks.filter(t => t.completed).length;

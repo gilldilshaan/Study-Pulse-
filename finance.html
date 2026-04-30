@@ -186,10 +186,11 @@
 
 <script>
 const user = JSON.parse(localStorage.getItem("user"));
-if (!user?.id) window.location.href = "login.html";
+const userId = user?._id || user?.id;
+if (!userId) window.location.href = "login.html";
 
 const API_BASE = "http://localhost:5000/api/finance";
-const STORAGE_KEY = `sp_finance_${user.id}`;
+const STORAGE_KEY = `sp_finance_${userId}`;
 
 const list = document.getElementById("list");
 const form = document.getElementById("finance-form");
@@ -673,7 +674,7 @@ function escapeHtml(s) {
 
 async function fetchFinance() {
   try {
-    const res = await fetch(`${API_BASE}/${user.id}`);
+    const res = await fetch(`${API_BASE}/${userId}`);
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error("Invalid response");
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -694,14 +695,21 @@ async function seedDataIfEmpty(existing) {
     { title: "Travel", amount: 2000, type: "expense", category: "Travel", date: today, note: "" }
   ];
 
+  let posted = 0;
   for (const t of sample) {
     try {
       await fetch(API_BASE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...t, userId: user.id })
+        body: JSON.stringify({ ...t, userId })
       });
+      posted++;
     } catch {}
+  }
+
+  if (posted === 0) {
+    const offline = sample.map((t, i) => ({ ...t, userId, _id: `seed_${i}_${Date.now()}` }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(offline));
   }
 }
 
@@ -728,7 +736,7 @@ form.addEventListener("submit", async (e) => {
     category: byId("category").value,
     date: byId("date").value,
     note: byId("note").value,
-    userId: user.id
+    userId
   };
 
   try {

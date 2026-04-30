@@ -75,12 +75,15 @@
 
 <script>
 const user = JSON.parse(localStorage.getItem("user"));
+const userId = user?._id || user?.id;
 const list = document.getElementById("assignment-list");
 const form = document.getElementById("assignment-form");
 
+if (!userId) window.location.href = "login.html";
+
 // 🔥 SEED DATA (only once)
 async function seedData() {
-  const res = await fetch(`http://localhost:5000/api/assignments/${user.id}`);
+  const res = await fetch(`http://localhost:5000/api/assignments/${userId}`);
   const data = await res.json();
 
   if (data.length === 0) {
@@ -94,7 +97,7 @@ async function seedData() {
       await fetch("http://localhost:5000/api/assignments", {
         method: "POST",
         headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ ...s, userId: user.id })
+        body: JSON.stringify({ ...s, userId })
       });
     }
   }
@@ -102,7 +105,7 @@ async function seedData() {
 
 // LOAD
 async function loadAssignments() {
-  const res = await fetch(`http://localhost:5000/api/assignments/${user.id}`);
+  const res = await fetch(`http://localhost:5000/api/assignments/${userId}`);
   const data = await res.json();
 
   list.innerHTML = "";
@@ -179,7 +182,7 @@ form.addEventListener("submit", async (e) => {
     body: JSON.stringify({
       title: document.getElementById("title").value,
       subject: document.getElementById("subject").value,
-      userId: user.id
+      userId
     })
   });
 
