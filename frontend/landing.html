@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>StudyPulse — AI-powered student productivity</title>
+    <meta
+      name="description"
+      content="StudyPulse is an AI-powered student productivity system for tasks, assignments, focus, finance, and smart insights."
+    />
+    <link rel="stylesheet" href="landing.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <div class="bg">
+      <div class="bg__mesh" aria-hidden="true"></div>
+      <div class="bg__noise" aria-hidden="true"></div>
+      <div class="bg__grid" aria-hidden="true"></div>
+    </div>
+
+    <header class="nav-wrap">
+      <div class="nav">
+        <a class="brand" href="landing.html" aria-label="StudyPulse home">
+          <span class="brand__mark" aria-hidden="true">
+            <span class="brand__dot brand__dot--a"></span>
+            <span class="brand__dot brand__dot--b"></span>
+            <span class="brand__dot brand__dot--c"></span>
+          </span>
+          <span class="brand__text">StudyPulse</span>
+        </a>
+
+        <nav class="nav__links" aria-label="Primary">
+          <a class="nav__link" href="#features">Features</a>
+          <a class="nav__link" href="#how">How it works</a>
+          <a class="nav__link" href="#focus">Focus</a>
+          <a class="nav__link" href="#finance">Finance</a>
+        </nav>
+
+        <div class="nav__actions">
+          <a class="btn btn--ghost" href="#preview">See demo</a>
+          <a class="btn btn--primary" href="login.html">Open App</a>
+          <button class="icon-btn nav__toggle" id="navToggle" type="button" aria-label="Open menu" aria-expanded="false">
+            <span class="icon-btn__bar"></span>
+            <span class="icon-btn__bar"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="mnav" id="mobileNav" hidden>
+        <div class="mnav__panel">
+          <div class="mnav__links">
+            <a class="mnav__link" href="#features">Features</a>
+            <a class="mnav__link" href="#how">How it works</a>
+            <a class="mnav__link" href="#focus">Focus</a>
+            <a class="mnav__link" href="#finance">Finance</a>
+          </div>
+          <div class="mnav__actions">
+            <a class="btn btn--ghost" href="#preview">See demo</a>
+            <a class="btn btn--primary" href="login.html">Open App</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <div class="container hero__grid">
+          <div class="hero__copy">
+            <div class="badge-row reveal">
+              <span class="badge">No signup friction</span>
+              <span class="badge">Built for students</span>
+              <span class="badge badge--glow">Fast & minimal</span>
+            </div>
+
+            <h1 class="hero__title reveal">
+              Organize your life.<br />
+              Stay focused.<br />
+              <span class="grad">Win your semester.</span>
+            </h1>
+
+            <p class="hero__sub reveal">
+              All-in-one system for tasks, assignments, focus, and money — built for students, powered by smart insights.
+            </p>
+
+            <div class="hero__ctas reveal">
+              <a class="btn btn--primary btn--lg" href="register.html">Start Free</a>
+              <a class="btn btn--ghost btn--lg" href="#how">See how it works</a>
+            </div>
+
+            <div class="hero__meta reveal">
+              <div class="mini-proof">
+                <span class="mini-proof__dot" aria-hidden="true"></span>
+                <span>Works offline-first</span>
+              </div>
+              <div class="mini-proof">
+                <span class="mini-proof__dot mini-proof__dot--b" aria-hidden="true"></span>
+                <span>Designed for deep work</span>
+              </div>
+              <div class="mini-proof">
+                <span class="mini-proof__dot mini-proof__dot--c" aria-hidden="true"></span>
+                <span>Money clarity, instantly</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero__visual reveal" aria-label="Dashboard preview">
+            <div class="glass glass--hero">
+              <div class="glass__sheen" aria-hidden="true"></div>
+
+              <div class="preview">
+                <div class="preview__top">
+                  <div class="preview__title">
+                    <div class="pulse" aria-hidden="true"></div>
+                    <span>Today</span>
+                  </div>
+                  <div class="chip chip--good" id="chipStreak">Streak: <span class="mono" data-count="12">12</span> days</div>
+                </div>
+
+                <div class="preview__grid">
+                  <div class="p-card p-card--tasks">
+                    <div class="p-card__head">
+                      <div class="p-card__label">Tasks</div>
+                      <div class="p-card__value mono"><span data-count="7">7</span>/<span data-count="9">9</span></div>
+                    </div>
+                    <div class="p-bars" aria-hidden="true">
+                      <div class="p-bar"><span class="w72"></span></div>
+                      <div class="p-bar"><span class="w48"></span></div>
+                      <div class="p-bar"><span class="w86"></span></div>
+                    </div>
+                    <div class="p-list">
+                      <div class="p-item"><span class="check check--on"></span><span>Revise calculus</span></div>
+                      <div class="p-item"><span class="check check--on"></span><span>Submit lab report</span></div>
+                      <div class="p-item"><span class="check"></span><span>Draft presentation</span></div>
+                    </div>
+                  </div>
+
+                  <div class="p-card p-card--focus">
+                    <div class="p-card__head">
+                      <div class="p-card__label">Focus</div>
+                      <div class="chip chip--soft">25:00</div>
+                    </div>
+                    <div class="ring" aria-hidden="true">
+                      <div class="ring__in">
+                        <div class="ring__time mono">24:12</div>
+                        <div class="ring__hint">deep work</div>
+                      </div>
+                    </div>
+                    <div class="p-row">
+                      <span class="muted">Peak window</span>
+                      <span class="mono">8:10 PM</span>
+                    </div>
+                  </div>
+
+                  <div class="p-card p-card--money">
+                    <div class="p-card__head">
+                      <div class="p-card__label">Finance</div>
+                      <div class="p-card__value mono">₹<span data-count="12310">12,310</span></div>
+                    </div>
+                    <div class="donut" aria-hidden="true">
+                      <svg viewBox="0 0 120 120" class="donut__svg" role="img" aria-label="Weekly spend chart">
+                        <defs>
+                          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0" stop-color="#58a6ff" />
+                            <stop offset="1" stop-color="#a78bfa" />
+                          </linearGradient>
+                          <linearGradient id="g2" x1="1" y1="0" x2="0" y2="1">
+                            <stop offset="0" stop-color="#22c55e" />
+                            <stop offset="1" stop-color="#38bdf8" />
+                          </linearGradient>
+                        </defs>
+                        <circle cx="60" cy="60" r="44" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="12" />
+                        <circle class="donut__seg donut__seg--a" cx="60" cy="60" r="44" fill="none" stroke="url(#g1)" stroke-width="12" stroke-linecap="round" />
+                        <circle class="donut__seg donut__seg--b" cx="60" cy="60" r="44" fill="none" stroke="url(#g2)" stroke-width="12" stroke-linecap="round" />
+                      </svg>
+                      <div class="donut__label">
+                        <div class="muted">This week</div>
+                        <div class="mono">₹<span data-count="500">500</span></div>
+                        <div class="muted">food</div>
+                      </div>
+                    </div>
+                    <div class="p-row">
+                      <span class="muted">Savings</span>
+                      <span class="chip chip--good">+32%</span>
+                    </div>
+                  </div>
+
+                  <div class="p-card p-card--insights">
+                    <div class="p-card__head">
+                      <div class="p-card__label">Smart Insights</div>
+                      <div class="chip chip--glow">AI-like</div>
+                    </div>
+                    <div class="ins">
+                      <div class="ins__row">
+                        <span class="ins__icon">🌙</span>
+                        <span>You’re most productive at night</span>
+                      </div>
+                      <div class="ins__row">
+                        <span class="ins__icon">🍔</span>
+                        <span>You spent ₹500 on food this week</span>
+                      </div>
+                      <div class="ins__row">
+                        <span class="ins__icon">🔥</span>
+                        <span>Keep the streak: plan tomorrow now</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="preview__bottom">
+                  <div class="spark" aria-hidden="true"></div>
+                  <div class="muted">Instant clarity. Zero clutter.</div>
+                  <a class="link" href="#preview">See full preview</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="halo" aria-hidden="true"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="proof">
+        <div class="container proof__row reveal">
+          <div class="proof__badge">
+            <span class="proof__glow" aria-hidden="true"></span>
+            <span class="mono">Used by <span data-count="500">500</span>+ students</span>
+          </div>
+          <div class="avatars" aria-hidden="true">
+            <span class="av"></span>
+            <span class="av"></span>
+            <span class="av"></span>
+            <span class="av"></span>
+            <span class="av"></span>
+          </div>
+          <div class="proof__hint">Built to feel like a funded product, not a school project.</div>
+        </div>
+      </section>
+
+      <section class="section section--problem" id="problem">
+        <div class="container">
+          <div class="section__head reveal">
+            <h2 class="h2">Student life is chaotic. Your tools shouldn’t be.</h2>
+            <p class="lead">StudyPulse replaces scattered apps with one clean system that actually helps you improve.</p>
+          </div>
+
+          <div class="problem-grid">
+            <div class="glass card reveal">
+              <div class="card__icon">🧩</div>
+              <div class="card__title">Too many apps</div>
+              <div class="card__text">Tasks in one place, deadlines in another, money somewhere else.</div>
+            </div>
+            <div class="glass card reveal">
+              <div class="card__icon">⏳</div>
+              <div class="card__title">No focus tracking</div>
+              <div class="card__text">You work hard but can’t see where time actually goes.</div>
+            </div>
+            <div class="glass card reveal">
+              <div class="card__icon">🧠</div>
+              <div class="card__title">No clarity</div>
+              <div class="card__text">Productivity feels random without feedback and patterns.</div>
+            </div>
+            <div class="glass card reveal">
+              <div class="card__icon">💸</div>
+              <div class="card__title">No money awareness</div>
+              <div class="card__text">Small spends add up. You deserve an early warning system.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="features">
+        <div class="container">
+          <div class="section__head reveal">
+            <h2 class="h2">A full system — designed to work together.</h2>
+            <p class="lead">Each module is powerful alone. Together, they become your semester OS.</p>
+          </div>
+
+          <div class="features">
+            <article class="glass f-card reveal">
+              <div class="f-card__top">
+                <div class="f-icon f-icon--a">✅</div>
+                <div class="f-card__title">Tasks Manager</div>
+              </div>
+              <div class="f-card__text">Track everything in one place — priorities, quick wins, and deep work.</div>
+              <div class="f-chiprow">
+                <span class="chip chip--soft">fast capture</span>
+                <span class="chip chip--soft">streaks</span>
+                <span class="chip chip--soft">daily plan</span>
+              </div>
+            </article>
+
+            <article class="glass f-card reveal">
+              <div class="f-card__top">
+                <div class="f-icon f-icon--b">📚</div>
+                <div class="f-card__title">Assignments Tracker</div>
+              </div>
+              <div class="f-card__text">Never miss deadlines — see what’s due, what’s blocked, and what’s next.</div>
+              <div class="f-chiprow">
+                <span class="chip chip--soft">due dates</span>
+                <span class="chip chip--soft">status</span>
+                <span class="chip chip--soft">progress</span>
+              </div>
+            </article>
+
+            <article class="glass f-card reveal" id="focus">
+              <div class="f-card__top">
+                <div class="f-icon f-icon--c">🎯</div>
+                <div class="f-card__title">Focus Mode</div>
+              </div>
+              <div class="f-card__text">Deep work with Pomodoro — track sessions, protect time, build rhythm.</div>
+              <div class="f-chiprow">
+                <span class="chip chip--soft">25/5</span>
+                <span class="chip chip--soft">session log</span>
+                <span class="chip chip--soft">timers</span>
+              </div>
+            </article>
+
+            <article class="glass f-card reveal" id="finance">
+              <div class="f-card__top">
+                <div class="f-icon f-icon--d">💰</div>
+                <div class="f-card__title">Finance Tracker</div>
+              </div>
+              <div class="f-card__text">Know where your money goes — categories, trends, and instant insights.</div>
+              <div class="f-chiprow">
+                <span class="chip chip--soft">INR-ready</span>
+                <span class="chip chip--soft">charts</span>
+                <span class="chip chip--soft">filters</span>
+              </div>
+            </article>
+
+            <article class="glass f-card reveal f-card--wide">
+              <div class="f-card__top">
+                <div class="f-icon f-icon--e">🧠</div>
+                <div class="f-card__title">Smart Insights</div>
+              </div>
+              <div class="f-card__text">AI-like suggestions that feel personal — habits, streaks, and patterns.</div>
+              <div class="ins-strip" aria-hidden="true">
+                <div class="ins-pill">“You focus better after 8 PM”</div>
+                <div class="ins-pill">“Your streak drops mid-week”</div>
+                <div class="ins-pill">“Food spend is trending up”</div>
+                <div class="ins-pill">“Plan tomorrow in 2 minutes”</div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--how" id="how">
+        <div class="container">
+          <div class="section__head reveal">
+            <h2 class="h2">A simple loop: capture → focus → improve.</h2>
+            <p class="lead">Three steps that make progress inevitable.</p>
+          </div>
+
+          <div class="how">
+            <div class="how__step glass reveal">
+              <div class="how__num">01</div>
+              <div class="how__icon">📝</div>
+              <div class="how__title">Add tasks & goals</div>
+              <div class="how__text">A quick daily plan that turns chaos into a clean list.</div>
+            </div>
+            <div class="how__step glass reveal">
+              <div class="how__num">02</div>
+              <div class="how__icon">⏱️</div>
+              <div class="how__title">Focus & track</div>
+              <div class="how__text">Pomodoro sessions with feedback — the system keeps you honest.</div>
+            </div>
+            <div class="how__step glass reveal">
+              <div class="how__num">03</div>
+              <div class="how__icon">✨</div>
+              <div class="how__title">Improve with insights</div>
+              <div class="how__text">Weekly patterns and smart nudges that actually change habits.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--preview" id="preview">
+        <div class="container">
+          <div class="section__head reveal">
+            <h2 class="h2">Live dashboard preview</h2>
+            <p class="lead">This is what “premium” feels like: glass, glow, hierarchy, and speed.</p>
+          </div>
+
+          <div class="dash reveal">
+            <div class="dash__left glass">
+              <div class="dash__head">
+                <div class="dash__title">StudyPulse</div>
+                <div class="dash__kpis">
+                  <div class="kpi">
+                    <div class="kpi__label">Completed</div>
+                    <div class="kpi__value mono"><span data-count="18">18</span></div>
+                  </div>
+                  <div class="kpi">
+                    <div class="kpi__label">Focus</div>
+                    <div class="kpi__value mono"><span data-count="125">125</span>m</div>
+                  </div>
+                  <div class="kpi">
+                    <div class="kpi__label">Balance</div>
+                    <div class="kpi__value mono">₹<span data-count="24850">24,850</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="dash__grid">
+                <div class="dash-card">
+                  <div class="dash-card__title">Weekly progress</div>
+                  <div class="sparkline" aria-hidden="true">
+                    <span class="h22"></span>
+                    <span class="h44"></span>
+                    <span class="h36"></span>
+                    <span class="h62"></span>
+                    <span class="h48"></span>
+                    <span class="h74"></span>
+                    <span class="h82"></span>
+                  </div>
+                  <div class="dash-card__hint muted">Your strongest days are Thu–Sat.</div>
+                </div>
+
+                <div class="dash-card">
+                  <div class="dash-card__title">Spend categories</div>
+                  <div class="pie-mini" aria-hidden="true"></div>
+                  <div class="dash-card__hint muted">Food + travel are the biggest drivers.</div>
+                </div>
+
+                <div class="dash-card dash-card--wide">
+                  <div class="dash-card__title">Activity</div>
+                  <div class="feed" aria-hidden="true">
+                    <div class="feed__row"><span class="dot dot--a"></span><span>Finished “Algorithms set 3”</span><span class="mono muted">9:14 PM</span></div>
+                    <div class="feed__row"><span class="dot dot--b"></span><span>2 focus sessions logged</span><span class="mono muted">8:02 PM</span></div>
+                    <div class="feed__row"><span class="dot dot--c"></span><span>Food spend tagged: ₹320</span><span class="mono muted">6:40 PM</span></div>
+                    <div class="feed__row"><span class="dot dot--d"></span><span>Deadline tomorrow: Lab report</span><span class="mono muted">4:12 PM</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <aside class="dash__right">
+              <div class="glass dash-side reveal">
+                <div class="dash-side__title">Smart insights</div>
+                <div class="ins-card">
+                  <div class="ins-card__row"><span class="ins-card__icon">🌙</span><span>You focus better after 8 PM</span></div>
+                  <div class="ins-card__row"><span class="ins-card__icon">🍔</span><span>Food spend is up <span class="mono">+22%</span></span></div>
+                  <div class="ins-card__row"><span class="ins-card__icon">🔥</span><span>Streak risk on Wednesdays</span></div>
+                </div>
+                <a class="btn btn--primary btn--full" href="finance.html">Try Finance</a>
+              </div>
+
+              <div class="glass dash-side reveal">
+                <div class="dash-side__title">Focus booster</div>
+                <div class="focus-mini">
+                  <div class="focus-mini__ring" aria-hidden="true"></div>
+                  <div class="focus-mini__copy">
+                    <div class="mono">25:00</div>
+                    <div class="muted">Start a session</div>
+                  </div>
+                </div>
+                <a class="btn btn--ghost btn--full" href="focus.html">Open Focus</a>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--insights">
+        <div class="container">
+          <div class="section__head reveal">
+            <h2 class="h2">Smart insights that feel personal</h2>
+            <p class="lead">The “wow factor” isn’t charts — it’s the suggestions that change your next week.</p>
+          </div>
+
+          <div class="ins-grid">
+            <div class="glass ins-big reveal">
+              <div class="ins-big__kicker">Pattern detection</div>
+              <div class="ins-big__title">You focus best after 8 PM</div>
+              <div class="ins-big__text">StudyPulse learns your peak windows and nudges you to schedule deep work there.</div>
+              <div class="timeline" aria-hidden="true">
+                <div class="timeline__bar"></div>
+                <div class="timeline__mark timeline__mark--a"><span>6 PM</span></div>
+                <div class="timeline__mark timeline__mark--b"><span>8 PM</span></div>
+                <div class="timeline__mark timeline__mark--c"><span>11 PM</span></div>
+              </div>
+            </div>
+
+            <div class="glass ins-small reveal">
+              <div class="ins-small__icon">🍔</div>
+              <div class="ins-small__title">Food overspend weekly</div>
+              <div class="ins-small__text">One small habit is eating your budget. Get the alert before it stacks.</div>
+              <div class="meter" aria-hidden="true"><span class="w76"></span></div>
+            </div>
+
+            <div class="glass ins-small reveal">
+              <div class="ins-small__icon">📉</div>
+              <div class="ins-small__title">Streak dips mid-week</div>
+              <div class="ins-small__text">A tiny Wednesday plan keeps your momentum and reduces stress.</div>
+              <div class="meter" aria-hidden="true"><span class="w58"></span></div>
+            </div>
+
+            <div class="glass ins-small reveal">
+              <div class="ins-small__icon">⚡</div>
+              <div class="ins-small__title">2-minute reset</div>
+              <div class="ins-small__text">A short nightly review improves completion rate dramatically.</div>
+              <div class="meter" aria-hidden="true"><span class="w66"></span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta">
+        <div class="container">
+          <div class="glass cta__box reveal">
+            <div class="cta__copy">
+              <h2 class="h2">Stop juggling apps. Start owning your life.</h2>
+              <p class="lead">Make progress feel automatic — tasks, focus, deadlines, and money in one clean system.</p>
+              <div class="cta__actions">
+                <a class="btn btn--primary btn--lg" href="register.html">Start using StudyPulse</a>
+                <a class="btn btn--ghost btn--lg" href="login.html">Open App</a>
+              </div>
+            </div>
+            <div class="cta__orb" aria-hidden="true"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__grid">
+        <div class="footer__brand">
+          <div class="brand brand--footer">
+            <span class="brand__mark" aria-hidden="true">
+              <span class="brand__dot brand__dot--a"></span>
+              <span class="brand__dot brand__dot--b"></span>
+              <span class="brand__dot brand__dot--c"></span>
+            </span>
+            <span class="brand__text">StudyPulse</span>
+          </div>
+          <div class="footer__text">AI-powered student productivity system.</div>
+        </div>
+
+        <div class="footer__links">
+          <a href="#features">Features</a>
+          <a href="#how">How it works</a>
+          <a href="login.html">Open App</a>
+          <a href="register.html">Start Free</a>
+        </div>
+
+        <div class="footer__links">
+          <a href="finance.html">Finance</a>
+          <a href="focus.html">Focus</a>
+          <a href="tasks.html">Tasks</a>
+          <a href="assignments.html">Assignments</a>
+        </div>
+      </div>
+      <div class="container footer__bottom">
+        <span class="muted">© <span id="year"></span> StudyPulse</span>
+        <span class="muted">Designed for students • Built for momentum</span>
+      </div>
+    </footer>
+
+    <script src="landing.js" defer></script>
+  </body>
+</html>

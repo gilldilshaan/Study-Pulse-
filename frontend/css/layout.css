@@ -1,0 +1,276 @@
+/* =========================
+   TOP NAVBAR — ELITE VERSION
+========================= */
+
+.topnav{
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  padding: 12px 16px 0;
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  background: linear-gradient(
+    to bottom,
+    rgba(8,12,30,0.85),
+    rgba(8,12,30,0.55)
+  );
+
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+/* INNER */
+.topnav-inner{
+  max-width: 1300px;
+  margin: 0 auto;
+
+  height: 60px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 14px;
+
+  border-radius: 16px;
+
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+
+  box-shadow:
+    0 12px 40px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* =========================
+   BRAND
+========================= */
+
+.topnav-brand{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.topnav-mark{
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+
+  display: grid;
+  place-items: center;
+
+  font-weight: 900;
+  color: white;
+
+  background: linear-gradient(135deg,#7c6ff7,#38bdf8);
+
+  box-shadow:
+    0 10px 30px rgba(124,111,247,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+
+  transition: transform 0.2s ease;
+}
+
+.topnav-mark:hover{
+  transform: scale(1.05);
+}
+
+.topnav-brandname{
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.topnav-brandsub{
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+}
+
+/* =========================
+   NAV LINKS
+========================= */
+
+.topnav-links{
+  display: flex;
+  gap: 6px;
+}
+
+/* LINK BASE */
+.topnav-link{
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  height: 38px;
+  padding: 0 12px;
+
+  border-radius: 10px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+
+  border: 1px solid transparent;
+
+  transition: all 0.2s ease;
+}
+
+/* HOVER */
+.topnav-link:hover{
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.06);
+
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* ACTIVE */
+.topnav-link.is-active{
+  background: rgba(124,111,247,0.18);
+  color: white;
+
+  border: 1px solid rgba(124,111,247,0.35);
+
+  box-shadow:
+    0 6px 20px rgba(124,111,247,0.25),
+    inset 0 0 10px rgba(124,111,247,0.15);
+}
+
+/* subtle glow line */
+.topnav-link.is-active::after{
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  border-radius: 999px;
+
+  background: linear-gradient(90deg,#7c6ff7,#38bdf8);
+  opacity: 0.8;
+}
+
+/* ICON */
+.topnav-ico{
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* =========================
+   RIGHT SIDE
+========================= */
+
+.topnav-right{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* USER CARD */
+.topnav-user{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 6px 10px;
+
+  border-radius: 12px;
+
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+
+  transition: all 0.2s ease;
+}
+
+.topnav-user:hover{
+  background: rgba(255,255,255,0.06);
+}
+
+/* AVATAR */
+.topnav-avatar{
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  background: linear-gradient(135deg,#7c6ff7,#38bdf8);
+  color: white;
+
+  box-shadow:
+    0 6px 20px rgba(124,111,247,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+/* TEXT */
+.topnav-username{
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.topnav-useremail{
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+}
+
+/* =========================
+   LOGOUT BUTTON
+========================= */
+
+#btn-logout{
+  height: 36px;
+  padding: 0 14px;
+
+  border-radius: 10px;
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  background: rgba(255,255,255,0.04);
+  color: white;
+
+  font-weight: 700;
+
+  transition: all 0.2s ease;
+}
+
+#btn-logout:hover{
+  background: rgba(251,113,133,0.18);
+  border-color: rgba(251,113,133,0.4);
+
+  transform: translateY(-1px);
+}
+
+/* =========================
+   MOBILE OPTIMIZATION
+========================= */
+
+@media (max-width:768px){
+
+  .topnav-inner{
+    height: 54px;
+  }
+
+  .topnav-text{
+    display: none;
+  }
+
+  .topnav-useremail{
+    display: none;
+  }
+
+}
+.card.pad.col-8 {
+  min-height: 220px;
+}
